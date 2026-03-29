@@ -1,6 +1,6 @@
 from post_triples import post_batch
 
-# your Sarvam extraction results
+# fine-tuned SLM extraction results
 triples = [
     {
         "text": "महात्मा गांधी का जन्म पोरबंदर में हुआ था।",
