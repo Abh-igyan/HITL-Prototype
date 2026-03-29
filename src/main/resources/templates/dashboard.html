@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>DBpedia Hindi HITL</title>
+    <meta charset="UTF-8"/>
+    <style>
+        body { font-family: Arial; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        h2   { color: #1A3C5E; }
+        .stats { display: flex; gap: 20px; background: #f0f4f8;
+            padding: 12px 20px; border-radius: 6px; margin-bottom: 24px; }
+        .stats div { font-size: 15px; }
+        .stats strong { color: #2563A8; }
+        .triple-card { border: 1px solid #ddd; padding: 16px;
+            margin: 12px 0; border-radius: 6px; background: #fafafa; }
+        .source { color: #666; font-size: 13px; margin-bottom: 10px; }
+        .spo { font-size: 15px; margin: 5px 0; }
+        .spo b { color: #1A3C5E; min-width: 30px; display: inline-block; }
+        .actions { margin-top: 12px; display: flex; gap: 8px; }
+        button { padding: 7px 18px; border: none; border-radius: 4px;
+            cursor: pointer; font-size: 14px; }
+        .approve { background: #2ecc71; color: white; }
+        .reject  { background: #e74c3c; color: white; }
+        .empty   { color: #999; font-style: italic; margin-top: 40px; }
+    </style>
+</head>
+<body>
+<h2>DBpedia Hindi — Triple Validation Dashboard</h2>
+
+<div class="stats">
+    <div>Pending: <strong th:text="${stats['PENDING']} ?: 0">0</strong></div>
+    <div>Approved: <strong th:text="${stats['APPROVED']} ?: 0">0</strong></div>
+    <div>Rejected: <strong th:text="${stats['REJECTED']} ?: 0">0</strong></div>
+    <div>Edited: <strong th:text="${stats['EDITED']} ?: 0">0</strong></div>
+</div>
+
+<div th:if="${#lists.isEmpty(triples)}" class="empty">
+    No pending triples. POST some from your Python script!
+</div>
+
+<div th:each="t : ${triples}" class="triple-card">
+    <div class="source" th:text="${t.originalText}">original text</div>
+    <div class="spo"><b>S:</b> <span th:text="${t.subject}"></span></div>
+    <div class="spo"><b>P:</b> <span th:text="${t.predicate}"></span></div>
+    <div class="spo"><b>O:</b> <span th:text="${t.object}"></span></div>
+    <div class="actions">
+        <button class="approve"
+                th:onclick="|validate(${t.id}, 'APPROVED')|">
+            ✓ Approve
+        </button>
+        <button class="reject"
+                th:onclick="|validate(${t.id}, 'REJECTED')|">
+            ✗ Reject
+        </button>
+    </div>
+</div>
+
+<script>
+    function validate(id, status) {
+        fetch('/api/triples/' + id + '/validate?status=' + status, {
+            method: 'PATCH'
+        }).then(function() {
+            location.reload();
+        });
+    }
+</script>
+</body>
+</html>
